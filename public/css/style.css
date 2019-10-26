@@ -5,18 +5,36 @@
   font-size: 11px;
 }
 
-#data-area {
-  display: block;
+#team-data_filter {
+  float: left;
+  padding: 4px;
 }
 
-.data-container div {
-  vertical-align: top;
+.header1 {
+  border-top: 1px solid #41ab5d;
+  border-bottom: 3px solid #238443;
+  padding: 0.6em 0.8em;
+  margin-top: 10px;
+  font-size: 13px;
+  background-color: #f8f8f8;
+}
+
+#data-content {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  grid-gap: 10px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+#data-stat {
   display: inline-block;
-  width: 640px;
+  grid-template-columns: repeat(2, 50%);
+  grid-gap: 10px;
 }
-
-.chart {
-  width: 50%;
+#data-stat div {
+  padding: 10px;
+  width: 600px;
+  float: left;
 }
 .data-table-data {
   font-size: 13px;

@@ -112,7 +112,9 @@ function makePersonalData() {
 function makeTeamData() {
   var table = $("#team-data");
 
-  gTeamDataTables = table.DataTable();
+  gTeamDataTables = table.DataTable({
+    lengthChange: false
+  });
   table.on("search.dt", function() {
     var displayed = gTeamDataTables.rows({ filter: "applied" }).data();
 
