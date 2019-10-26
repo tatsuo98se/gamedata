@@ -1,0 +1,90 @@
+@import url("https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c&display=swap");
+
+* {
+  font-family: "M PLUS Rounded 1c", sans-serif;
+  font-size: 11px;
+}
+
+#data-area {
+  display: block;
+}
+
+.data-container div {
+  vertical-align: top;
+  display: inline-block;
+  width: 640px;
+}
+
+.chart {
+  width: 50%;
+}
+.data-table-data {
+  font-size: 13px;
+}
+
+#team-data_wrapper {
+  max-width: 1280px;
+}
+
+.data-table {
+  border: 1px solid #ccc;
+  margin: 0 auto 20px auto;
+  width: 100%;
+  max-width: 1280px;
+}
+.data-table-title {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.data-table tr th {
+  padding: 5px 7px;
+  border-right: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #fff;
+  border-left: 1px solid #fff;
+  text-shadow: 0 1px 0 #fff;
+  font: bold;
+  text-transform: uppercase;
+  color: #000;
+  background-color: #f1f1f1;
+  background-image: -moz-linear-gradient(center top, #f9f9f9, #ececec);
+}
+
+.data-table tr th.last {
+  border-right: none;
+}
+
+.data-table tr th.first,
+.data-table tr td.stats-title {
+  border-left: none;
+  text-align: left;
+}
+
+.data-table tr td {
+  padding: 5px 7px;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  text-align: center;
+  color: #000;
+  font-size: 11px;
+}
+
+tr.stats-row {
+  text-align: right;
+}
+
+.data-table tr.stats-row td.stats-title {
+  text-align: left;
+  color: #111;
+  font-size: 13px;
+  text-shadow: 0 1px 0 #fff;
+  background: #efefef;
+  border-top: 1px solid #fff;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+}
+
+.data-table tr.stats-row td.stats-title.last {
+  border-bottom: 1px solid #fff;
+}
