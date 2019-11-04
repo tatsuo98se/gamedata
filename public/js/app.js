@@ -1,6 +1,9 @@
 var gTeamData = [];
 var gPersonalData = [];
 
+const heatMapGreen = { r: 80, g: 234, b: 30 };
+const heatMapRed = { r: 234, g: 80, b: 30 };
+
 var gShootTypeData = getEmptyStatDictionary();
 var gShootCourseSuccess = getEmptyStatDictionary();
 var gShootCourseFailed = getEmptyStatDictionary();
@@ -68,6 +71,25 @@ function countData(container, key) {
   return container;
 }
 
+function makeHeatmapColor(baseColor, val) {
+  var max = 100;
+  // 色を指定する
+  xr = 255;
+  xg = 255;
+  xb = 255;
+
+  yr = baseColor.r; //80;
+  yg = baseColor.g; //243;
+  yb = baseColor.b; //30;
+
+  var n = 100;
+
+  var pos = parseInt(Math.round((val / max) * 100).toFixed(0));
+  red = parseInt((xr + (pos * (yr - xr)) / (n - 1)).toFixed(0));
+  green = parseInt((xg + (pos * (yg - xg)) / (n - 1)).toFixed(0));
+  blue = parseInt((xb + (pos * (yb - xb)) / (n - 1)).toFixed(0));
+  return { r: red, g: green, b: blue };
+}
 var gPersonalDataTables;
 var gTeamDataTables;
 function makePersonalData() {
@@ -77,6 +99,7 @@ function makePersonalData() {
     gPersonalDataTables.clear();
   } else {
     gPersonalDataTables = table.DataTable({
+      responsive: true,
       order: [[2, "desc"]],
       searching: false,
       paging: false,
@@ -113,6 +136,10 @@ function makeTeamData() {
   var table = $("#team-data");
 
   gTeamDataTables = table.DataTable({
+    oLanguage: {
+      sSearch: "データのフィルタ"
+    },
+    responsive: true,
     lengthChange: false
   });
   table.on("search.dt", function() {
@@ -161,7 +188,7 @@ function makeTeamData() {
       data.shootCourse,
       data.shootResult,
       data.gameDate,
-      data.penalty,
+      //      data.penalty,
       data.vs,
       data.class
     ]);
@@ -173,24 +200,27 @@ function updateCharts() {
   makeHeatmap($("#heat-map tbody td").not(".stats-title"), function(item) {
     var val = 0;
 
+    var cource = item.attr("id");
     var count =
-      safeMapGet(gShootCourseSuccess, item.attr("id")) +
-      safeMapGet(gShootCourseFailed, item.attr("id"));
+      safeMapGet(gShootCourseSuccess, cource) +
+      safeMapGet(gShootCourseFailed, cource);
     if (count) {
       val =
         (count / (gShootCourseSuccess._total + gShootCourseFailed._total)) *
         100;
     }
+
+    var baseColor = undefined;
+    if (cource == "out") {
+      baseColor = heatMapRed;
+    } else {
+      baseColor = heatMapGreen;
+    }
     return {
       val: val,
-      text: Math.round(val) + "%",
-      text:
-        Math.round(val) +
-        "% (" +
-        count +
-        "/" +
-        (gShootCourseSuccess._total + gShootCourseFailed._total) +
-        ")"
+      numer: count,
+      denom: gShootCourseFailed._total + gShootCourseSuccess._total,
+      color: makeHeatmapColor(baseColor, val)
     };
   });
   makeHeatmap($("#success-heat-map tbody td").not(".stats-title"), function(
@@ -200,17 +230,34 @@ function updateCharts() {
     var success = safeMapGet(gShootCourseSuccess, item.attr("id"));
     var failed = safeMapGet(gShootCourseFailed, item.attr("id"));
 
+    var color = { r: 255, g: 255, b: 255 };
     if (success) {
       val = (success / (success + failed)) * 100;
+      color = makeHeatmapColor(heatMapGreen, val);
+    } else if (failed) {
+      color = makeHeatmapColor(
+        heatMapRed,
+        (failed / gShootCourseFailed._total) * 100
+      );
     }
+
     return {
       val: val,
-      text: Math.round(val) + "% (" + success + "/" + (success + failed) + ")"
+      numer: success,
+      denom: success + failed,
+      color: color
     };
   });
 
   makeCircleChart(gShootTypeChart, gShootTypeData);
   makePersonalData();
+}
+
+function hideTeamData() {
+  $("#team-data").slideToggle();
+  $("#team-data_info").slideToggle();
+  $("#team-data_paginate").slideToggle();
+  $(this).toggleClass("active");
 }
 
 $(document).ready(function() {
@@ -225,37 +272,31 @@ $(document).ready(function() {
   // レスポンスが返ってきたらconvertCSVtoArray()を呼ぶ
   req.onload = function() {
     gTeamData = convertCSVtoArray(req.responseText); // 渡されるのは読み込んだCSVデータ
+
     makeTeamData();
     updateCharts();
+    $("#team-data_filter").click(function() {
+      hideTeamData();
+    });
+    $("#team-data_filter label input").click(function(e) {
+      e.stopPropagation();
+    });
+    hideTeamData();
   };
 });
 
 function makeHeatmap(tableCollection, funcGetValue) {
-  var max = 100;
-  // 色を指定する
-  xr = 255;
-  xg = 255;
-  xb = 255;
-
-  yr = 80;
-  yg = 243;
-  yb = 30;
-
-  n = 100; // 各データポイントをループして、その％の値を計算する
   tableCollection.each(function() {
     // set value
     var ret = funcGetValue($(this));
-    var val = ret.val;
-    var text = ret.text;
+    var val = Math.round(ret.val);
 
-    $(this).text(text);
-    var pos = parseInt(Math.round((val / max) * 100).toFixed(0));
-    red = parseInt((xr + (pos * (yr - xr)) / (n - 1)).toFixed(0));
-    green = parseInt((xg + (pos * (yg - xg)) / (n - 1)).toFixed(0));
-    blue = parseInt((xb + (pos * (yb - xb)) / (n - 1)).toFixed(0));
-    clr = "rgb(" + red + "," + green + "," + blue + ")";
+    $(this).text(val + "% (" + ret.numer + "/" + ret.denom + ")");
+
+    var clr = ret.color;
+
     $(this).css({
-      backgroundColor: clr
+      backgroundColor: "rgb(" + clr.r + "," + clr.g + "," + clr.b + ")"
     });
   });
 }
@@ -333,7 +374,7 @@ $.fn.dataTableExt.afnFiltering.push(function(oSettings, aData, iDataIndex) {
   for (var k = 0; k < keywords.length; k++) {
     var keyword = keywords[k];
     for (var col = 0; col < aData.length; col++) {
-      if (aData[col].indexOf(keyword) > -1) {
+      if (aData[col].toUpperCase().indexOf(keyword.toUpperCase()) > -1) {
         matches++;
         break;
       }
