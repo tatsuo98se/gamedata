@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.556.0",
+    "aws-sdk": "^2.814.0",
     "csv-parser": "^2.3.1",
     "express": "^4.17.1",
     "memory-streams": "^0.1.3"
